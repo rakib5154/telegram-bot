@@ -40,7 +40,9 @@ async function sendTelegramMessage(chatId, message) {
 
 // Event processor
 async function processEvent(data, docId, isWithdraw=false) {
-  const { status, method, amount, trxId } = data;
+  // ১. এখানে requestId ডি-স্ট্রাকচার করা হয়েছে
+  const { status, method, amount, trxId, requestId } = data;
+  
   if(!['pending','approved','rejected'].includes(status)) return;
 
   const number = data.Number || data.number || 'N/A';
@@ -60,7 +62,9 @@ async function processEvent(data, docId, isWithdraw=false) {
     title = status==='pending'?'📥 New Deposit Request':status==='approved'?'📥 Deposit Approved':'📥 Deposit Rejected';
   }
 
-  let msg = `${title}\nid: ${customId}\nAmount: ${amount}\nNumber: ${number}`;
+  // ২. মেসেজের মধ্যে Request Id অ্যাড করা হয়েছে
+  let msg = `${title}\nRequest Id: ${requestId || 'N/A'}\nid: ${customId}\nAmount: ${amount}\nNumber: ${number}`;
+  
   if(!isWithdraw || status==='approved') msg += `\nTrxId: ${trxId||'N/A'}`;
   msg += `\nMethod: ${method}\nTime: ${formatTime(data.createdAt)}`;
 
